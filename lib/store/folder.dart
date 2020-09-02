@@ -1,29 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:localstorage/localstorage.dart';
+import 'package:notes_viewer/model/model.dart';
+// import 'package:localstorage/localstorage.dart';
 
 class SyncedFolder extends ChangeNotifier {
-  final String _FOLDER_KEY = "SELECTED_FOLDER";
-  final LocalStorage storage  = new LocalStorage('folder');
-
   String _selectedFolder;
-
-  String get selectedFolder {
-
-    if (_selectedFolder != null) {
-       _selectedFolder = storage.getItem(_FOLDER_KEY);
-    } 
-
-    return _selectedFolder;
-  } 
-
-  void setFolder(String folder) {
-    _selectedFolder = folder;
-    notifyListeners();
+  SyncedFolder() {
+    initialize();
   }
 
-  void updateFolder(String folder) {
+  void initialize() async {
+    if (this._selectedFolder == null) {
+      var storageItem = await Storage().getById(0);
+      if (storageItem != null) {
+        this._selectedFolder = storageItem.path;
+        notifyListeners();
+      }
+    }
+  }
+
+  String get selectedFolder {
+    return _selectedFolder;
+  }
+
+  void updateFolder(String folder) async  {
     _selectedFolder = folder;
-    storage.setItem(_FOLDER_KEY, folder);
+    await Storage.withId(0, folder, false).save();
     notifyListeners();
-  }    
+  }
 }

@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:notes_viewer/pages/notes_list.dart';
+import 'package:notes_viewer/pages/random_note.dart';
 import 'package:notes_viewer/pages/settings.dart';
 import 'package:provider/provider.dart';
 
+import 'model/model.dart';
 import 'store/folder.dart';
 
 void main() async {
-  runApp(ChangeNotifierProvider(
-    create: (context) => SyncedFolder(),
-    child: MyApp(),
-  ));
+  WidgetsFlutterBinding.ensureInitialized();
+  final initialized = await MyDbModel().initializeDB();
+  if (initialized) {
+    runApp(ChangeNotifierProvider(
+      create: (context) => SyncedFolder(),
+      child: MyApp(),
+    ));
+  } else {
+    print("Error!");
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -70,6 +78,8 @@ class _RootPageState extends State<RootPage> {
       case 0:
         return new NotesPage();
       case 1:
+        return new RandomNotePage();
+      case 2:
         return new SettingsPage();
       default:
         return new NotesPage();
@@ -90,6 +100,7 @@ class _RootPageState extends State<RootPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("Home")),
+          BottomNavigationBarItem(icon: Icon(Icons.question_answer), title: Text("Random")),
           BottomNavigationBarItem(
               icon: Icon(Icons.settings), title: Text("Settings")),
         ],
